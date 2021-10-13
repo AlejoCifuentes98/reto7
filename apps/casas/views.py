@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth import login, logout, authenticate
 from .models import Propietario, Casa
 
 
@@ -8,16 +9,42 @@ def inicio_view(request):
 
 
 def registro_view(request):
-
+    if request.method == 'POST':
+        form_propietario_registrar = propietario_agregar_form(request.POST)
+        form_casa_registrar = casa_agregar_form(request.POST, request.FILES)
+        if form_propietario_registrar.isvalid() and form_casa_registrar.isvalid():
+            p= form_propietario_registrar.save()
+            c =form_casa_registrar.save(commit=False)
+            c.propietario = p
+            c.save()
     return render(request,'casas/registro.html', locals())    
 
 def login_view(request):
+    usu =""
+    cla= ""
+    if request.method == 'POST':
+        formulario = login_form(request.POST)
+        usuario = authenticate(username=usu, password=cla)
+        if usuario is not None and usuario.is_active:
+            login(request, usuario)
+            return redirect('/')
+        else:
+            msj = 'usuario o clave incorrectos'    
     return render(request,'casas/login.html', locals())
 
 def logout_view(request):
-    return render(request,'casas/logout.html', locals())
+    logout(request)
+    return redirect('/login/')
 
 def casa_registrar_view(request):
+    if request.method == 'POST':
+        form_casa_registrar= casa_registrar_form(request.POST)
+        if form_casa_registrar.isvalid():
+            form_casa_registrar.save()
+        else: 
+            msj = 'Ocurrio un error, por favor intente nuevamente'    
+    else:
+        form_casa_registrar= casa_registrar_form()        
     return render(request,'casas/casa_registrar.html', locals)
 
 def casa_editar_view(request,id_casa):
@@ -39,9 +66,16 @@ def casa_eliminar_view(request, id_casa):
     return render(request,'casas/casa_eliminar', locals())
 
 def propietarios_view(request):
+    propietarios = Propietario.objects.filter()
     return render(request,'casas/propietarios.html', locals())
 
 def propietario_registrar_view(request):
+    if request.method == 'POST':
+        form_propietario_registrar = propietario_registar_form(request.POST)
+        if form_propietario_registrar.isvalid():
+            form_propietario_registrar.save()
+    else:
+        form_propietario_registrar = propietario_registar_form()        
     return render(request,'casas/propietario_registrar.html', locals())
 
 def propietario_editar_view(request, id_propietario):

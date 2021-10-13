@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.fields.related import ForeignKey
+
 
 class Propietario(models.Model):
     nombres = models.CharField(max_length=50)
@@ -23,6 +23,6 @@ class Casa(models.Model):
     estado = models.CharField(max_length= 30,choices=estados, default='En reconstruccion')
     imagen_inicial = models.ImageField(upload_to='imagen_inicial')
     imagen_final = models.ImageField(upload_to='imagen_final', null=True, blank=True)
-    propietario = ForeignKey(Propietario, on_delete=models.PROTECT)
+    propietario = models.ForeignKey(Propietario, on_delete=models.PROTECT)
     def __str__(self):
         return str(self.id) + ' ' + self.direccion + ' ' + self.estado
